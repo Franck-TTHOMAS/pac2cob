@@ -1,0 +1,72 @@
+#!/usr/bin/perl -w
+
+use warnings;
+use strict;
+use Getopt::Std;
+use Pac2Cob ;
+
+my %opt ;
+getopts ("ho:tv", \%opt) or print_usage ();
+print_doc () if (defined($opt{'h'})) ;
+
+print "ARGV = @ARGV\n" ;
+
+my $fic ;
+foreach $fic ( @ARGV ) {
+	print ">$fic\n";
+	&Pac2Cob::mef_ligne ($fic) ;
+}
+
+#pac2cob_go "RSA011.pco";
+#&Pac2Cob::mef_ligne () ;
+
+sub print_usage {
+	print <<END_DOC;
+NOM
+	pac2cob : transformation d'un cobol genere par Pacbase vers du cobol propre
+
+SYNOPSIS
+	pac2cob [-dhtv] [-o <repSortie>] [<nomSource>]
+
+END_DOC
+}
+
+sub print_doc {
+	print_usage ();
+	print <<END_DOC;
+DESCRIPTION
+	Pour chaque code source fourni en entree, pac2cob nettoie, transforme et structure le code cobol.
+	Le fichier produit porte le suffixe ".coob"
+	Ce processus s'effectue en etapes successives :
+	- mise en forme de la ligne. Avec l'option de test -t, un fichier .tmp1 est produit.
+	- ajout des END-IF necessaires. Avec l'option de test -t, un fichier .tmp2 est produit.
+	- suppression des points inutiles. Avec l'option de test -t, un fichier .tmp3 est produit.
+	Les fichiers produits se trouvent dans le repertoire courant
+
+OPTIONS
+	-d	mode debug (non implemente).
+	-h	affichage de l'aide.
+	-o	repertoire destinataire du code produit ; par défaut le repertoire en cours
+	-t	generation des codes intermediaires. Cette option n'est activable que pour un seul programme en entree.
+	-v	verbose (bavard)
+
+EXEMPLES
+	pac2cob "COBOL007.pco"
+		lance le process de transformation sur le source situe dans le repertoire courant
+		et produit le code "COBOL007.coob" dans le repertoire courant
+
+	pac2cob "/app/Ria/rs/src/batch/COBOL007.pco"
+		lance le process de transformation sur le source situe dans le repertoire indique
+		et produit le code "COBOL007.coob" dans le repertoire courant
+
+	pac2cob -t "COBOL007.pco"
+		generation des codes intermediaires (.tmp1, .tmp2, ...)
+
+	pac2cob -o /app/Ria/rs/src/newBatch "COBOL007.pco"
+		le code genere sera depose dans le repertoire de sortie cite.
+		Nous obtiendrons ainsi le fichier : /app/Ria/rs/src/newBatch/COBOL007.cob
+	
+AVERTISSEMENT
+
+END_DOC
+}
